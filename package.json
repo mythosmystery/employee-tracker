@@ -1,0 +1,26 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "An app for tracking employee data through the command line.",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mythosmystery/employee-tracker.git"
+  },
+  "author": "Hunter Barton",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mythosmystery/employee-tracker/issues"
+  },
+  "homepage": "https://github.com/mythosmystery/employee-tracker#readme",
+  "dependencies": {
+    "dotenv": "^9.0.0",
+    "fs": "*",
+    "inquirer": "^8.0.0",
+    "mysql2": "^2.2.5",
+    "sequelize": "^6.6.2"
+  }
+}
