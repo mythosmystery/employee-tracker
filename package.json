@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/mythosmystery/employee-tracker#readme",
   "dependencies": {
+    "console.table": "^0.10.0",
     "dotenv": "^9.0.0",
     "fs": "*",
     "inquirer": "^8.0.0",
