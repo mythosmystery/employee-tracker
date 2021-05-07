@@ -1,20 +1,28 @@
-const { Model, DataTypes} = require("sequelize");
+const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../lib/connection");
-class Role extends Model{}
+class Role extends Model { }
 Role.init({
-    role_id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+        role_id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        title: {
+            type: DataTypes.STRING
+        },
+        salary: {
+            type: DataTypes.DECIMAL
+        },
+        department_id: {
+            type: DataTypes.INTEGER
+        }
     },
-    title: {
-        type: DataTypes.STRING
-    },
-    salary: {
-        type: DataTypes.DECIMAL
-    },
-    department_id: {
-        type: DataTypes.INTEGER
+    {
+        sequelize,
+        timestamps: false,
+        freezeTableName: true,
+        underscored: true,
+        modelName: 'role'
     }
-});
+);
 module.exports = Role;
