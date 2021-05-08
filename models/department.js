@@ -1,13 +1,7 @@
 const { Model, DataTypes} = require("sequelize");
 const sequelize = require("../lib/connection");
-const App = require("../lib/app");
 
-class Department extends Model {
-    static departmentMenu() {
-        console.log("department menu");
-        App.menu();
-    }
-}
+class Department extends Model {}
 
 Department.init({
         department_id: {
