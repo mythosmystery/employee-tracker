@@ -1,6 +1,12 @@
 const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../lib/connection");
-class Role extends Model { }
+const App = require("../lib/app");
+class Role extends Model {
+    static roleMenu() {
+        console.log("role menu");
+        App.menu();
+    }
+ }
 Role.init({
         role_id: {
             type: DataTypes.INTEGER,
