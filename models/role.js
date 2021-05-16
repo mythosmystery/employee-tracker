@@ -2,9 +2,9 @@ const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../lib/connection");
 const cTable = require("console.table");
 const Prompt = require("../lib/prompt");
-const Seeds = require("../lib/seeds");
 
 class Role extends Model {
+
     static async roleMenu() {
         let resp = { menu: '' };
         while (resp.menu != "Exit") {
@@ -12,7 +12,7 @@ class Role extends Model {
             if (resp.menu == "See all roles") await this.showAllRoles();
             if (resp.menu == "Add new role") await this.addNewRole();
             if (resp.menu == "Delete role") await this.deleteRole();
-            if (resp.menu == "Seed database") await Seeds.seedRoles();
+            if (resp.menu == "Seed database") await this.seedRoles();
         }
     }
     static async showAllRoles() {
@@ -37,6 +37,37 @@ class Role extends Model {
             }
         });
         console.log(`Role ${delRole.title} successfully deleted`);
+    }
+    static async seedRoles() {
+        await Role.drop();
+        await Role.sync();
+        await Role.bulkCreate([
+            {
+                title: "Manager",
+                salary: 100000,
+                department_id: 1
+            },
+            {
+                title: "Analyst",
+                salary: 80000,
+                department_id: 2
+            },
+            {
+                title: "Senior Engineer",
+                salary: 200000,
+                department_id: 3
+            },
+            {
+                title: "Junior Engineer",
+                salary: 65000,
+                department_id: 3
+            },
+            {
+                title: "Customer Service Rep",
+                salary: 45000,
+                department_id: 4
+            }
+        ]);
     }
 }
 

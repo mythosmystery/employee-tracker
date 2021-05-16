@@ -2,7 +2,6 @@ const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../lib/connection");
 const cTable = require("console.table");
 const Prompt = require("../lib/prompt");
-const Seeds = require("../lib/seeds");
 const Role = require("./role");
 
 class Employee extends Model {
@@ -15,7 +14,7 @@ class Employee extends Model {
             if (resp.menu == "Update employee role") await this.updateEmployeeRole();
             if (resp.menu == "Update employee manager") await this.updateEmployeeManager();
             if (resp.menu == "Delete employee") await this.deleteEmployee();
-            if (resp.menu == "Seed database") await Seeds.seedEmployees();
+            if (resp.menu == "Seed database") await this.seedEmployees();
         }
     }
     static async showAllEmployees() {
@@ -67,6 +66,35 @@ class Employee extends Model {
             }
         });
         console.log(`Employee ${delEmp.first_name} ${delEmp.last_name} successfully deleted`);
+    }
+    static async seedEmployees() {
+        await Employee.drop();
+        await Employee.sync();
+        await Employee.bulkCreate([
+            {
+                first_name: "Jim",
+                last_name: "Lahey",
+                role_id: 1
+            },
+            {
+                first_name: "Randy",
+                last_name: "Bo-bandy",
+                role_id: 2,
+                manager_id: 1
+            },
+            {
+                first_name: "Ricky",
+                last_name: "LaFluer",
+                role_id: 1,
+                manager_id: 1
+            },
+            {
+                first_name: "Bubbles",
+                last_name: "",
+                role_id: 4,
+                manager_id: 3
+            }
+        ]);
     }
 }
 

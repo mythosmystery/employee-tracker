@@ -2,7 +2,6 @@ const { Model, DataTypes } = require("sequelize");
 const sequelize = require("../lib/connection");
 const cTable = require("console.table");
 const Prompt = require("../lib/prompt");
-const Seeds = require("../lib/seeds");
 
 class Department extends Model {
     static async departmentMenu() {
@@ -12,7 +11,7 @@ class Department extends Model {
             if (resp.menu == "See all departments") await this.showAllDepartments();
             if (resp.menu == "Add new department") await this.addNewDepartment();
             if (resp.menu == "Delete department") await this.deleteDepartment();
-            if (resp.menu == "Seed database") await Seeds.seedDepartments();
+            if (resp.menu == "Seed database") await this.seedDepartments();
         }
     }
     static async addNewDepartment() {
@@ -35,6 +34,24 @@ class Department extends Model {
             }
         });
         console.log(`${delDept.name} department successfully deleted`);
+    }
+    static async seedDepartments() {
+        await Department.drop();
+        await Department.sync();
+        await Department.bulkCreate([
+            {
+                name: "Managment"
+            },
+            {
+                name: "System Administration"
+            },
+            {
+                name: "Software Development"
+            },
+            {
+                name: "Customer Service"
+            }
+        ]);
     }
 }
 
