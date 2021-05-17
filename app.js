@@ -12,6 +12,16 @@ class App {
             if (res.mainMenu == "Exit") process.exit(0);
         }
     }
+    static employeeMenu = async () => {
+        let resp = { menu: '' };
+        while (resp.menu != "Exit") {
+            resp = await Prompt.employeeMenu();
+            if (resp.menu == "See all employees") await this.showAllEmployees();
+            if (resp.menu == "Add new employee") await this.addNewEmployee();
+            if (resp.menu == "Update employee") await this.updateEmployee();
+            if (resp.menu == "Delete employee") await this.deleteEmployee();
+        }
+    }
     static departmentMenu = async () => {
         let resp = { menu: '' };
         while (resp.menu != "Exit") {
@@ -19,6 +29,15 @@ class App {
             if (resp.menu == "See all departments") await this.showAllDepartments();
             if (resp.menu == "Add new department") await this.addNewDepartment();
             if (resp.menu == "Delete department") await this.deleteDepartment();
+        }
+    }
+    static roleMenu = async () => {
+        let resp = { menu: '' };
+        while (resp.menu != "Exit") {
+            resp = await Prompt.roleMenu();
+            if (resp.menu == "See all roles") await this.showAllRoles();
+            if (resp.menu == "Add new role") await this.addNewRole();
+            if (resp.menu == "Delete role") await this.deleteRole();
         }
     }
     static addNewDepartment = async () => {
@@ -33,71 +52,59 @@ class App {
         console.table("Departments", departments);
     }
     static deleteDepartment = async () => {
-        const res = await Prompt.deleteDepartment();
-        const delDept = await Department.findByPk(res.deleteID, { raw: true });
+        const deleteID = await this.selectDepartment("Select department to delete:");
         await Department.destroy({
             where: {
-                id: res.deleteID
+                id: deleteID
             }
         });
-        console.log(`${delDept.name} department successfully deleted`);
+        console.log(`department successfully deleted`);
     }
 
-    static roleMenu = async () => {
-        let resp = { menu: '' };
-        while (resp.menu != "Exit") {
-            resp = await Prompt.roleMenu();
-            if (resp.menu == "See all roles") await this.showAllRoles();
-            if (resp.menu == "Add new role") await this.addNewRole();
-            if (resp.menu == "Delete role") await this.deleteRole();
-        }
-    }
     static showAllRoles = async () => {
-        const roles = await Role.findAll({ raw: true });
+        let roles = [];
+        const roleJson = await Role.findAll({ include: Department });
+        roleJson.forEach(roleData => {
+            const role = roleData.get({ plain: true });
+            roles.push({
+                title: role.title,
+                salary: role.salary,
+                department: role.department.name
+            });
+        })
         console.table("Roles", roles);
     }
     static addNewRole = async () => {
         const role = await Prompt.addRole();
+        const departmentID = await this.selectDepartment("Select the department this role is in:");
         await Role.create({
             title: role.title,
             salary: role.salary,
-            department_id: role.department_id
+            department_id: departmentID
         });
         console.log(`New role ${role.title} created!`);
     }
     static deleteRole = async () => {
-        const res = await Prompt.deleteRole();
-        const delRole = await Role.findByPk(res.deleteID, { raw: true });
+        const deleteID = await this.selectRole("Select role to delete:");
         await Role.destroy({
             where: {
-                id: res.deleteID
+                id: deleteID
             }
         });
-        console.log(`Role ${delRole.title} successfully deleted`);
+        console.log(`Role successfully deleted`);
     }
 
-    static employeeMenu = async () => {
-        let resp = { menu: '' };
-        while (resp.menu != "Exit") {
-            resp = await Prompt.employeeMenu();
-            if (resp.menu == "See all employees") await this.showAllEmployees();
-            if (resp.menu == "Add new employee") await this.addNewEmployee();
-            if (resp.menu == "Update employee role") await this.updateEmployeeRole();
-            if (resp.menu == "Update employee manager") await this.updateEmployeeManager();
-            if (resp.menu == "Delete employee") await this.deleteEmployee();
-        }
-    }
     static showAllEmployees = async () => {
-        let formatEmps = [];
+        let employees = [];
         const empJson = await Employee.findAll({
             include: {
                 model: Role,
                 include: Department
             }
         });
-        empJson.forEach(async empData => {
+        empJson.forEach(empData => {
             const emp = empData.get({ plain: true })
-            formatEmps.push({
+            employees.push({
                 first_name: emp.first_name,
                 last_name: emp.last_name,
                 manager: `${empJson[emp.manager_id - 1].first_name} ${empJson[emp.manager_id - 1].last_name}`,
@@ -106,57 +113,84 @@ class App {
                 department: emp.role.department.name
             });
         });
-        console.table(formatEmps);
+        console.table(employees);
     }
 
     static addNewEmployee = async () => {
-        const employee = await Prompt.addEmployee();
-        const role = await Role.findByPk(employee.role_id, { raw: true });
+        const name = await Prompt.addEmployee();
+        const roleID = await this.selectRole("Select this employee's role:");
+        console.log("Select this employee's manager");
+        const managerID = await this.selectEmployee("Select this employee's manager:");
         await Employee.create({
-            first_name: employee.firstName,
-            last_name: employee.lastName,
-            role_id: employee.roleID,
-            manager_id: employee.managerID
+            first_name: name.firstName,
+            last_name: name.lastName,
+            role_id: roleID,
+            manager_id: managerID
         });
-        console.log(`New Employee ${employee.firstName} ${employee.lastName} created!`);
+        console.log(`New Employee ${name.firstName} ${name.lastName} created!`);
     }
-
-    static updateEmployeeRole = async () => {
-        const name = await Prompt.getEmployeeToUpdate();
-        const role = await Prompt.updateEmployeeRole();
+    static updateEmployee = async () => {
+        const name = await this.selectEmployee();
+        const prop = await Prompt.propToUpdate();
+        if (prop.prop == "Role") {
+            await this.updateEmployeeRole(name);
+        } else {
+            await this.updateEmployeeManager(name);
+        }
+    }
+    static updateEmployeeRole = async (empID) => {
+        const roleID = await this.selectRole("Select the new role for this employee");
         await Employee.update(
             {
-                role_id: role.roleID
+                role_id: roleID
             },
             {
-                where: {
-                    first_name: name.first_name,
-                    last_name: name.last_name
-                }
+                where: { id: empID }
             });
         console.log("Role successfully updated.");
     }
-    static updateEmployeeManager = async () => {
-        const id = await Prompt.getEmployeeToUpdate();
-        const manager = await Prompt.updateEmployeeManager();
+    static updateEmployeeManager = async (empID) => {
+        const managerID = await this.selectEmployee("Select the new manager for this employee");
         await Employee.update(
             {
-                manager_id: manager.managerID
+                manager_id: managerID
             },
             {
-                where: { id: id.updateID }
+                where: { id: empID }
             });
-        console.log("Role successfully updated.");
+        console.log("Manager successfully updated.");
     }
     static deleteEmployee = async () => {
-        const res = await Prompt.deleteEmployee();
-        const delEmp = await Employee.findByPk(res.deleteID, { raw: true });
+        const deleteID = await this.selectEmployee("Select employee to delete:");
         await Employee.destroy({
             where: {
-                id: res.deleteID
+                id: deleteID
             }
         });
-        console.log(`Employee ${delEmp.first_name} ${delEmp.last_name} successfully deleted`);
+        console.log(`Employee successfully deleted`);
+    }
+    static selectEmployee = async (msg) => {
+        let names = [];
+        const employees = await Employee.findAll({ raw: true });
+        employees.forEach(employee => {
+            names.push(`${employee.first_name} ${employee.last_name}`);
+        });
+        const emp = await Prompt.selectFromList(msg, names);
+        return names.indexOf(emp.name) + 1;
+    }
+    static selectRole = async (msg) => {
+        let titles = [];
+        const roles = await Role.findAll({ raw: true });
+        roles.forEach(role => { titles.push(role.title) });
+        const role = await Prompt.selectFromList(msg, titles);
+        return titles.indexOf(role.name) + 1;
+    }
+    static selectDepartment = async (msg) => {
+        let names = [];
+        const departments = await Department.findAll({ raw: true });
+        departments.forEach(department => { names.push(department.name) });
+        const department = await Prompt.selectFromList(msg, names);
+        return names.indexOf(department.name) + 1;
     }
 
 }
