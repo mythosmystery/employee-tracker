@@ -1,7 +1,6 @@
 const { Role, Employee, Department } = require("../models");
+
 const seedDepartments = async () => {
-    await Department.drop();
-    await Department.sync();
     await Department.bulkCreate([
         {
             name: "Managment"
@@ -18,8 +17,6 @@ const seedDepartments = async () => {
     ]);
 }
 const seedRoles = async () => {
-    await Role.drop();
-    await Role.sync();
     await Role.bulkCreate([
         {
             title: "Manager",
@@ -49,13 +46,12 @@ const seedRoles = async () => {
     ]);
 }
 const seedEmployees = async () => {
-    await Employee.drop();
-    await Employee.sync();
     await Employee.bulkCreate([
         {
             first_name: "Jim",
             last_name: "Lahey",
-            role_id: 1
+            role_id: 1,
+            manager_id: 2
         },
         {
             first_name: "Randy",
@@ -77,3 +73,7 @@ const seedEmployees = async () => {
         }
     ]);
 }
+
+seedDepartments();
+seedRoles();
+seedEmployees();

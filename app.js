@@ -37,7 +37,7 @@ class App {
         const delDept = await Department.findByPk(res.deleteID, { raw: true });
         await Department.destroy({
             where: {
-                department_id: res.deleteID
+                id: res.deleteID
             }
         });
         console.log(`${delDept.name} department successfully deleted`);
@@ -70,7 +70,7 @@ class App {
         const delRole = await Role.findByPk(res.deleteID, { raw: true });
         await Role.destroy({
             where: {
-                role_id: res.deleteID
+                id: res.deleteID
             }
         });
         console.log(`Role ${delRole.title} successfully deleted`);
@@ -88,28 +88,27 @@ class App {
         }
     }
     static showAllEmployees = async () => {
-        const employees = await this.formatEmployees();
-        console.table("Employees", employees);
-    }
-    static formatEmployees = async () => {
-        const employees = await Employee.findAll({ raw: true });
         let formatEmps = [];
-        employees.forEach(async employee => {
-            const manager = await Employee.findByPk(employee.manager_id, { raw: true });
-            const role = await employee.getRole();
-            const department = await role.getDepartment();
-            const formatEmployee = {
-                first_name: employee.first_name,
-                last_name: employee.last_name,
-                manager: manager.first_name,
-                role: role.title,
-                salary: role.salary,
-                department: department.name
+        const empJson = await Employee.findAll({
+            include: {
+                model: Role,
+                include: Department
             }
-            formatEmps.push(formatEmployee);
         });
-        return formatEmps;
+        empJson.forEach(async empData => {
+            const emp = empData.get({ plain: true })
+            formatEmps.push({
+                first_name: emp.first_name,
+                last_name: emp.last_name,
+                manager: `${empJson[emp.manager_id - 1].first_name} ${empJson[emp.manager_id - 1].last_name}`,
+                role: emp.role.title,
+                salary: `$${emp.role.salary}`,
+                department: emp.role.department.name
+            });
+        });
+        console.table(formatEmps);
     }
+
     static addNewEmployee = async () => {
         const employee = await Prompt.addEmployee();
         const role = await Role.findByPk(employee.role_id, { raw: true });
@@ -123,14 +122,17 @@ class App {
     }
 
     static updateEmployeeRole = async () => {
-        const id = await Prompt.getEmployeeToUpdate();
+        const name = await Prompt.getEmployeeToUpdate();
         const role = await Prompt.updateEmployeeRole();
         await Employee.update(
             {
                 role_id: role.roleID
             },
             {
-                where: { employee_id: id.updateID }
+                where: {
+                    first_name: name.first_name,
+                    last_name: name.last_name
+                }
             });
         console.log("Role successfully updated.");
     }
@@ -142,7 +144,7 @@ class App {
                 manager_id: manager.managerID
             },
             {
-                where: { employee_id: id.updateID }
+                where: { id: id.updateID }
             });
         console.log("Role successfully updated.");
     }
@@ -151,7 +153,7 @@ class App {
         const delEmp = await Employee.findByPk(res.deleteID, { raw: true });
         await Employee.destroy({
             where: {
-                employee_id: res.deleteID
+                id: res.deleteID
             }
         });
         console.log(`Employee ${delEmp.first_name} ${delEmp.last_name} successfully deleted`);

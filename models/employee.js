@@ -5,7 +5,7 @@ class Employee extends Model { }
 
 Employee.init(
     {
-        employee_id: {
+        id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
