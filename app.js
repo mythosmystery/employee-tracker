@@ -3,6 +3,9 @@ const Prompt = require("./lib/prompt");
 const cTable = require("console.table");
 const { findByPk } = require('./models/employee');
 class App {
+    static init = async () => {
+
+    }
     static menu = async () => {
         let res = { mainMenu: '' };
         while (res.mainMenu != "Exit") {
