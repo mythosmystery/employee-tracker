@@ -11,10 +11,12 @@ Role.init(
             autoIncrement: true
         },
         title: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
         },
         salary: {
-            type: DataTypes.DECIMAL
+            type: DataTypes.DECIMAL,
+            allowNull: false
         },
         department_id: {
             type: DataTypes.INTEGER,

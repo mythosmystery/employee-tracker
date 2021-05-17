@@ -1,6 +1,7 @@
 const { Employee, Role, Department } = require("./models");
 const Prompt = require("./lib/prompt");
 const cTable = require("console.table");
+const { findByPk } = require('./models/employee');
 class App {
     static menu = async () => {
         let res = { mainMenu: '' };
@@ -14,7 +15,7 @@ class App {
     }
     static employeeMenu = async () => {
         let resp = { menu: '' };
-        while (resp.menu != "Exit") {
+        while (resp.menu != "Back") {
             resp = await Prompt.employeeMenu();
             if (resp.menu == "See all employees") await this.showAllEmployees();
             if (resp.menu == "Add new employee") await this.addNewEmployee();
@@ -24,21 +25,40 @@ class App {
     }
     static departmentMenu = async () => {
         let resp = { menu: '' };
-        while (resp.menu != "Exit") {
+        while (resp.menu != "Back") {
             resp = await Prompt.departmentMenu();
             if (resp.menu == "See all departments") await this.showAllDepartments();
             if (resp.menu == "Add new department") await this.addNewDepartment();
+            if (resp.menu == "See department budget") await this.showBudget();
             if (resp.menu == "Delete department") await this.deleteDepartment();
         }
     }
     static roleMenu = async () => {
         let resp = { menu: '' };
-        while (resp.menu != "Exit") {
+        while (resp.menu != "Back") {
             resp = await Prompt.roleMenu();
             if (resp.menu == "See all roles") await this.showAllRoles();
             if (resp.menu == "Add new role") await this.addNewRole();
             if (resp.menu == "Delete role") await this.deleteRole();
         }
+    }
+    static showBudget = async () => {
+        const departmentID = await this.selectDepartment("Select which department's budget to view:");
+        const budget = await this.getBudget(departmentID);
+        console.log(`This department's budget is $${budget}`);
+    }
+    static getBudget = async (departmentID) => {
+        let budget = 0;
+        const department = (await Department.findByPk(departmentID, {
+            include: {
+                model: Role,
+                include: Employee
+            }
+        })).get({ plain: true });
+        department.roles.forEach(role => {
+            budget += (role.salary * role.employees.length);
+        });
+        return budget;
     }
     static addNewDepartment = async () => {
         const department = await Prompt.addDepartment();
@@ -50,6 +70,7 @@ class App {
     static showAllDepartments = async () => {
         const departments = await Department.findAll({ raw: true });
         console.table("Departments", departments);
+
     }
     static deleteDepartment = async () => {
         const deleteID = await this.selectDepartment("Select department to delete:");

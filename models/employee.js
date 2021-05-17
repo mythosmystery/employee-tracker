@@ -11,10 +11,12 @@ Employee.init(
             autoIncrement: true
         },
         first_name: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
         },
         last_name: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
+            allowNull: false
         },
         manager_id: {
             type: DataTypes.INTEGER
