@@ -1,0 +1,44 @@
+[
+    {
+        "first_name": "Jim",
+        "last_name": "Test",
+        "manager_id": 1,
+        "role_id": 6
+    },
+    {
+        "first_name": "Steve",
+        "last_name": "Test",
+        "manager_id": 1,
+        "role_id": 3
+    },
+    {
+        "first_name": "Paul",
+        "last_name": "Test",
+        "manager_id": 1,
+        "role_id": 2
+    },
+    {
+        "first_name": "Bob",
+        "last_name": "Man",
+        "manager_id": 1,
+        "role_id": 6
+    },
+    {
+        "first_name": "Tim",
+        "last_name": "Boy",
+        "manager_id": 4,
+        "role_id": 5
+    },
+    {
+        "first_name": "Jim",
+        "last_name": "Tim",
+        "manager_id": 4,
+        "role_id": 4
+    },
+    {
+        "first_name": "Jom",
+        "last_name": "Tom",
+        "manager_id": 4,
+        "role_id": 1
+    }
+]

@@ -1,0 +1,32 @@
+[
+    {
+        "title": "Product Tester",
+        "salary": 123456,
+        "department_id": 1
+    },
+    {
+        "title": "Janitor",
+        "salary": 13245,
+        "department_id": 2
+    },
+    {
+        "title": "System Administrator",
+        "salary": 1234567,
+        "department_id": 3
+    },
+    {
+        "title": "IT Technician",
+        "salary": 12345,
+        "department_id": 4
+    },
+    {
+        "title": "Software Engineer",
+        "salary": 12345678,
+        "department_id": 5
+    },
+    {
+        "title": "Manager",
+        "salary": 123456789,
+        "department_id": 3
+    }
+]
